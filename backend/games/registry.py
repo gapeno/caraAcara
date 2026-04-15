@@ -12,6 +12,7 @@ Each entry:
 """
 
 from games.tictactoe import logic as tictactoe_logic
+from games.minesweeper import logic as minesweeper_logic
 
 REGISTRY: dict = {
     "tictactoe": {
@@ -23,8 +24,16 @@ REGISTRY: dict = {
         "max_players": 2,
         "logic": tictactoe_logic,
     },
+    "minesweeper": {
+        "id": "minesweeper",
+        "label": "Minesweeper",
+        "description": "Take turns clearing the 20×20 field. Hit a mine and your opponent wins.",
+        "icon": "💣",
+        "min_players": 2,
+        "max_players": 2,
+        "logic": minesweeper_logic,
+    },
     # Phase 2 — add more games here:
-    # "minesweeper": { ... },
     # "guess_who": { ... },
 }
 

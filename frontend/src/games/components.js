@@ -5,11 +5,11 @@
  */
 
 import TicTacToe from './tictactoe/TicTacToe';
+import Minesweeper from './minesweeper/Minesweeper';
 
 const COMPONENTS = {
   tictactoe: TicTacToe,
-  // Phase 2:
-  // minesweeper: Minesweeper,
+  minesweeper: Minesweeper,
   // guess_who: GuessWho,
 };
 
