@@ -1,25 +1,32 @@
-import logo from './logo.svg';
+import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import GamePage from './pages/GamePage';
 import './App.css';
 
-function App() {
+export default function App() {
+  const [currentUser, setCurrentUser] = useState(null);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <HomePage
+              currentUser={currentUser}
+              onLogin={setCurrentUser}
+            />
+          }
+        />
+        <Route
+          path="/game/:gameId"
+          element={
+            <GamePage currentUser={currentUser} />
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;
