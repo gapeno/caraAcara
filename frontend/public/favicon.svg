@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- 4x4 checkerboard: dark (#0f1117) and red (#e94560) cells, 8x8 each -->
+  <!-- Row 0 -->
+  <rect x="0"  y="0"  width="8" height="8" fill="#0f1117"/>
+  <rect x="8"  y="0"  width="8" height="8" fill="#e94560"/>
+  <rect x="16" y="0"  width="8" height="8" fill="#0f1117"/>
+  <rect x="24" y="0"  width="8" height="8" fill="#e94560"/>
+  <!-- Row 1 -->
+  <rect x="0"  y="8"  width="8" height="8" fill="#e94560"/>
+  <rect x="8"  y="8"  width="8" height="8" fill="#0f1117"/>
+  <rect x="16" y="8"  width="8" height="8" fill="#e94560"/>
+  <rect x="24" y="8"  width="8" height="8" fill="#0f1117"/>
+  <!-- Row 2 -->
+  <rect x="0"  y="16" width="8" height="8" fill="#0f1117"/>
+  <rect x="8"  y="16" width="8" height="8" fill="#e94560"/>
+  <rect x="16" y="16" width="8" height="8" fill="#0f1117"/>
+  <rect x="24" y="16" width="8" height="8" fill="#e94560"/>
+  <!-- Row 3 -->
+  <rect x="0"  y="24" width="8" height="8" fill="#e94560"/>
+  <rect x="8"  y="24" width="8" height="8" fill="#0f1117"/>
+  <rect x="16" y="24" width="8" height="8" fill="#e94560"/>
+  <rect x="24" y="24" width="8" height="8" fill="#0f1117"/>
+</svg>

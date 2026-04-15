@@ -1,0 +1,139 @@
+.ttt-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Players row */
+.ttt-players {
+  display: flex;
+  gap: 2rem;
+}
+
+.ttt-player {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  transition: border-color 0.2s, background 0.2s;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.ttt-player.active {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.ttt-player.winner {
+  border-color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.ttt-symbol {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.ttt-name {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90px;
+}
+
+/* Status */
+.ttt-status {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  min-height: 1.6rem;
+}
+
+.ttt-status.game-over {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Board */
+.ttt-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.ttt-cell {
+  aspect-ratio: 1;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.ttt-cell:hover:not(:disabled):not(.filled) {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+  transform: scale(1.04);
+}
+
+.ttt-cell:disabled {
+  cursor: default;
+}
+
+.ttt-cell.win-cell {
+  border-color: #4caf50;
+  background: rgba(76, 175, 80, 0.12);
+}
+
+.ttt-mark {
+  font-size: 2.8rem;
+  font-weight: 900;
+  line-height: 1;
+  animation: pop 0.15s ease-out;
+}
+
+.ttt-mark.mark-p1 {
+  color: var(--accent);
+}
+
+.ttt-mark.mark-p2 {
+  color: #64b5f6;
+}
+
+@keyframes pop {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+/* Restart */
+.ttt-restart {
+  margin-top: 0.5rem;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .ttt-board {
+    gap: 7px;
+  }
+
+  .ttt-mark {
+    font-size: 2.2rem;
+  }
+
+  .ttt-players {
+    gap: 1rem;
+  }
+}

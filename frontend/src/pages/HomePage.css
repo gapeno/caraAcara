@@ -1,0 +1,140 @@
+.home-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+.home-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.logo {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: var(--text);
+  margin: 0;
+}
+
+.logo span {
+  color: var(--accent);
+}
+
+.tagline {
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  font-size: 1rem;
+}
+
+/* Login */
+.login-section {
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+
+.login-section h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.login-input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.login-input:focus {
+  border-color: var(--accent);
+}
+
+/* Game selection */
+.game-select-section {
+  width: 100%;
+  max-width: 800px;
+  text-align: center;
+}
+
+.game-select-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.username {
+  color: var(--accent);
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.game-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 1.75rem 1.25rem;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.2s, transform 0.15s;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.game-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+}
+
+.game-card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.game-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.game-card p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.players-badge {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  background: var(--accent-dim);
+  color: var(--accent);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
