@@ -27,12 +27,12 @@ export default function HomePage({ onLogin, currentUser }) {
     <div className="home-page">
       <header className="home-header">
         <h1 className="logo">cara<span>A</span>cara</h1>
-        <p className="tagline">face to face multiplayer games over the clod</p>
+        <p className="tagline">face to face multiplayer games over the cloud</p>
       </header>
 
       {!currentUser ? (
         <section className="login-section">
-          <h2>Enter your name to play</h2>
+          <h2>enter your name to play</h2>
           <form className="login-form" onSubmit={handleLogin}>
             <input
               type="text"
@@ -44,14 +44,14 @@ export default function HomePage({ onLogin, currentUser }) {
               autoFocus
             />
             <button type="submit" className="btn btn-primary" disabled={!username.trim()}>
-              Let's Play
+              let's play
             </button>
           </form>
         </section>
       ) : (
         <section className="game-select-section">
-          <h2>Welcome, <span className="username">{currentUser}</span></h2>
-          <p className="subtitle">Pick a game to start</p>
+          <h2>welcome, <span className="username">{currentUser}</span></h2>
+          <p className="subtitle">pick a game to start</p>
           <div className="game-grid">
             {games.map((game) => (
               <button
@@ -62,7 +62,15 @@ export default function HomePage({ onLogin, currentUser }) {
                 <div className="game-card-icon">{game.icon ?? '🎮'}</div>
                 <h3>{game.label}</h3>
                 <p>{game.description}</p>
-                <span className="players-badge">{game.min_players}–{game.max_players} players</span>
+                {game.min_players !== game.max_players && (
+                  <span className="players-badge">{game.min_players}–{game.max_players} players</span>
+                )}
+                {game.min_players == 1 && game.min_players == game.max_players && (
+                  <span className="players-badge">{game.min_players} player</span>
+                )}
+                {game.min_players > 1 && game.min_players == game.max_players && (
+                  <span className="players-badge">{game.min_players} players</span>
+                )}
               </button>
             ))}
           </div>
