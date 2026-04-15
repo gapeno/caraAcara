@@ -3,11 +3,11 @@ import './TicTacToe.css';
 const SYMBOLS = { p1: 'X', p2: 'O' };
 
 export default function TicTacToe({ state, players, onMove, onRestart }) {
-  const { board, currentPlayer, status, winner, winLine } = state;
+  const { board, current_player, status, winner, win_line } = state;
 
   const playerMap = Object.fromEntries(players.map((p) => [p.id, p]));
-  const currentPlayerName = playerMap[currentPlayer]?.name ?? currentPlayer;
-  const winnerName = winner ? playerMap[winner]?.name ?? winner : null;
+  const currentPlayerName = playerMap[current_player]?.name ?? current_player;
+  const winnerName = winner ? (playerMap[winner]?.name ?? winner) : null;
 
   function statusMessage() {
     if (status === 'win') return `${winnerName} wins!`;
@@ -27,7 +27,7 @@ export default function TicTacToe({ state, players, onMove, onRestart }) {
         {players.map((p) => (
           <div
             key={p.id}
-            className={`ttt-player ${currentPlayer === p.id && status === 'in_progress' ? 'active' : ''} ${winner === p.id ? 'winner' : ''}`}
+            className={`ttt-player ${current_player === p.id && status === 'in_progress' ? 'active' : ''} ${winner === p.id ? 'winner' : ''}`}
           >
             <span className="ttt-symbol">{SYMBOLS[p.id]}</span>
             <span className="ttt-name">{p.name}</span>
@@ -41,7 +41,7 @@ export default function TicTacToe({ state, players, onMove, onRestart }) {
 
       <div className="ttt-board">
         {board.map((cell, index) => {
-          const isWinCell = winLine?.includes(index);
+          const isWinCell = win_line?.includes(index);
           return (
             <button
               key={index}

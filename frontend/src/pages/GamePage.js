@@ -1,22 +1,19 @@
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useGameState } from '../hooks/useGameState';
-import { getGameMeta, getGameComponent } from '../games/registry';
+import { getGameComponent } from '../games/components';
 import './GamePage.css';
 
 export default function GamePage({ currentUser }) {
   const { gameId: gameType } = useParams();
   const navigate = useNavigate();
-  const { state, players, loading, error, startGame, submitMove, restart } = useGameState();
+  const { state, players, label, loading, error, startGame, submitMove, restart } = useGameState();
 
-  const meta = (() => {
-    try { return getGameMeta(gameType); }
-    catch { return null; }
-  })();
+  const GameComponent = getGameComponent(gameType);
 
   useEffect(() => {
     if (!currentUser) { navigate('/'); return; }
-    if (!meta) { navigate('/'); return; }
+    if (!GameComponent) { navigate('/'); return; }
 
     const playerList = [
       { id: 'p1', name: currentUser },
@@ -26,17 +23,12 @@ export default function GamePage({ currentUser }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameType, currentUser]);
 
-  const GameComponent = (() => {
-    try { return getGameComponent(gameType); }
-    catch { return null; }
-  })();
-
   function handleMove(move) {
     if (!state) return;
-    submitMove(state.currentPlayer, move);
+    submitMove(state.current_player, move);
   }
 
-  if (!meta || !GameComponent) {
+  if (!GameComponent) {
     return <div className="game-page-error">Unknown game.</div>;
   }
 
@@ -44,7 +36,7 @@ export default function GamePage({ currentUser }) {
     <div className="game-page">
       <header className="game-page-header">
         <button className="btn-back" onClick={() => navigate('/')}>← Back</button>
-        <h2>{meta.label}</h2>
+        <h2>{label ?? gameType}</h2>
         <div />
       </header>
 

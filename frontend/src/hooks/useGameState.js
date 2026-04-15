@@ -1,7 +1,5 @@
 /**
  * useGameState — wraps all game API calls and exposes clean state to components.
- *
- * In Phase 3 this hook will replace the stub calls with real fetch() calls.
  * Components never touch gameApi directly — they only talk to this hook.
  */
 
@@ -11,6 +9,7 @@ import * as gameApi from '../api/gameApi';
 export function useGameState() {
   const [gameId, setGameId] = useState(null);
   const [gameType, setGameType] = useState(null);
+  const [label, setLabel] = useState(null);
   const [players, setPlayers] = useState([]);
   const [state, setState] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -23,6 +22,7 @@ export function useGameState() {
       const result = await gameApi.createGame(type, playerList);
       setGameId(result.gameId);
       setGameType(result.gameType);
+      setLabel(result.label ?? null);
       setPlayers(result.players);
       setState(result.state);
     } catch (err) {
@@ -60,15 +60,5 @@ export function useGameState() {
     }
   }, [gameId]);
 
-  return {
-    gameId,
-    gameType,
-    players,
-    state,
-    loading,
-    error,
-    startGame,
-    submitMove,
-    restart,
-  };
+  return { gameId, gameType, label, players, state, loading, error, startGame, submitMove, restart };
 }

@@ -1,66 +1,63 @@
 /**
- * Game API stub — mirrors the REST contract the real backend will implement.
+ * Game API client — all game logic lives in the backend.
+ * The frontend never computes state; it only sends requests and renders responses.
  *
- * Every function returns a Promise so swapping for real fetch() calls later
- * requires no changes in callers.
- *
- * Phase 3 endpoints:
- *   POST /games             → createGame
- *   POST /games/:id/join    → joinGame
- *   POST /games/:id/moves   → makeMove
- *   GET  /games/:id         → getGameState
- *   POST /games/:id/reset   → resetGame
+ * Endpoints (FastAPI on localhost:8000, Lambda in production):
+ *   GET  /games                → listGames
+ *   POST /games                → createGame
+ *   GET  /games/:id            → getGameState
+ *   POST /games/:id/moves      → makeMove
+ *   POST /games/:id/reset      → resetGame
  */
 
-import { getGameLogic } from '../games/registry';
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
-// In-memory store for the POC
-const store = {
-  games: {},
-  nextId: 1,
-};
+async function request(method, path, body) {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
+  });
 
-function generateId() {
-  return `game-${store.nextId++}`;
-}
-
-/** POST /games */
-export async function createGame(gameType, players) {
-  const logic = getGameLogic(gameType);
-  const gameId = generateId();
-  const state = logic.initialState(players);
-
-  store.games[gameId] = { id: gameId, gameType, players, state };
-  return { gameId, gameType, players, state };
-}
-
-/** GET /games/:id */
-export async function getGameState(gameId) {
-  const game = store.games[gameId];
-  if (!game) throw new Error(`Game ${gameId} not found`);
-  return { ...game };
-}
-
-/** POST /games/:id/moves */
-export async function makeMove(gameId, playerId, move) {
-  const game = store.games[gameId];
-  if (!game) throw new Error(`Game ${gameId} not found`);
-
-  const logic = getGameLogic(game.gameType);
-  if (!logic.isValidMove(game.state, move, playerId)) {
-    throw new Error('Invalid move');
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail ?? 'Request failed');
   }
 
-  game.state = logic.applyMove(game.state, move, playerId);
-  return { ...game };
+  return res.json();
 }
 
-/** POST /games/:id/reset */
-export async function resetGame(gameId) {
-  const game = store.games[gameId];
-  if (!game) throw new Error(`Game ${gameId} not found`);
+/** GET /games — list all available game types. */
+export async function listGames() {
+  return request('GET', '/games');
+}
 
-  const logic = getGameLogic(game.gameType);
-  game.state = logic.initialState(game.players);
-  return { ...game };
+/** POST /games — create a new game session. */
+export async function createGame(gameType, players) {
+  const data = await request('POST', '/games', { game_type: gameType, players });
+  return {
+    gameId: data.id,
+    gameType: data.game_type,
+    label: data.label,
+    players: data.players,
+    state: data.state,
+  };
+}
+
+/** GET /games/:id — get current game state. */
+export async function getGameState(gameId) {
+  const data = await request('GET', `/games/${gameId}`);
+  return { gameId: data.id, gameType: data.game_type, players: data.players, state: data.state };
+}
+
+/** POST /games/:id/moves — apply a player move. */
+export async function makeMove(gameId, playerId, move) {
+  const data = await request('POST', `/games/${gameId}/moves`, { player_id: playerId, move });
+  return { gameId: data.id, gameType: data.game_type, players: data.players, state: data.state };
+}
+
+/** POST /games/:id/reset — restart the game. */
+export async function resetGame(gameId) {
+  const data = await request('POST', `/games/${gameId}/reset`);
+  return { gameId: data.id, gameType: data.game_type, players: data.players, state: data.state };
 }

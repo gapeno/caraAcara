@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllGames } from '../games/registry';
+import { listGames } from '../api/gameApi';
 import './HomePage.css';
-
-const GAMES = getAllGames();
 
 export default function HomePage({ onLogin, currentUser }) {
   const [username, setUsername] = useState('');
+  const [games, setGames] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    listGames().then(setGames).catch(console.error);
+  }, []);
 
   function handleLogin(e) {
     e.preventDefault();
@@ -50,7 +53,7 @@ export default function HomePage({ onLogin, currentUser }) {
           <h2>Welcome, <span className="username">{currentUser}</span></h2>
           <p className="subtitle">Pick a game to start</p>
           <div className="game-grid">
-            {GAMES.map((game) => (
+            {games.map((game) => (
               <button
                 key={game.id}
                 className="game-card"
@@ -59,7 +62,7 @@ export default function HomePage({ onLogin, currentUser }) {
                 <div className="game-card-icon">{game.icon ?? '🎮'}</div>
                 <h3>{game.label}</h3>
                 <p>{game.description}</p>
-                <span className="players-badge">{game.minPlayers}–{game.maxPlayers} players</span>
+                <span className="players-badge">{game.min_players}–{game.max_players} players</span>
               </button>
             ))}
           </div>
@@ -68,4 +71,3 @@ export default function HomePage({ onLogin, currentUser }) {
     </div>
   );
 }
-
