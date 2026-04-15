@@ -12,6 +12,7 @@
  */
 
 import * as tictactoeLogic from './tictactoe/logic';
+import TicTacToe from './tictactoe/TicTacToe';
 
 const REGISTRY = {
   tictactoe: {
@@ -21,10 +22,11 @@ const REGISTRY = {
     minPlayers: 2,
     maxPlayers: 2,
     logic: tictactoeLogic,
+    component: TicTacToe,
   },
   // Phase 2 — add more games here:
-  // minesweeper: { ... },
-  // guessWho: { ... },
+  // minesweeper: { id, label, description, minPlayers, maxPlayers, logic, component },
+  // guessWho:    { ... },
 };
 
 export function getGameLogic(gameType) {
@@ -33,13 +35,19 @@ export function getGameLogic(gameType) {
   return entry.logic;
 }
 
+export function getGameComponent(gameType) {
+  const entry = REGISTRY[gameType];
+  if (!entry) throw new Error(`Unknown game type: "${gameType}"`);
+  return entry.component;
+}
+
 export function getGameMeta(gameType) {
   const entry = REGISTRY[gameType];
   if (!entry) throw new Error(`Unknown game type: "${gameType}"`);
-  const { logic, ...meta } = entry;
+  const { logic, component, ...meta } = entry;
   return meta;
 }
 
 export function getAllGames() {
-  return Object.values(REGISTRY).map(({ logic, ...meta }) => meta);
+  return Object.values(REGISTRY).map(({ logic, component, ...meta }) => meta);
 }

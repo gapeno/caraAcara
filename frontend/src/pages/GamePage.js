@@ -1,14 +1,8 @@
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useGameState } from '../hooks/useGameState';
-import { getGameMeta } from '../games/registry';
-import TicTacToe from '../games/tictactoe/TicTacToe';
+import { getGameMeta, getGameComponent } from '../games/registry';
 import './GamePage.css';
-
-const GAME_COMPONENTS = {
-  tictactoe: TicTacToe,
-  // Phase 2: minesweeper, guessWho
-};
 
 export default function GamePage({ currentUser }) {
   const { gameId: gameType } = useParams();
@@ -24,7 +18,6 @@ export default function GamePage({ currentUser }) {
     if (!currentUser) { navigate('/'); return; }
     if (!meta) { navigate('/'); return; }
 
-    // For the POC both seats are local — P1 is the logged-in user, P2 is "Guest"
     const playerList = [
       { id: 'p1', name: currentUser },
       { id: 'p2', name: 'Player 2' },
@@ -33,7 +26,10 @@ export default function GamePage({ currentUser }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameType, currentUser]);
 
-  const GameComponent = GAME_COMPONENTS[gameType];
+  const GameComponent = (() => {
+    try { return getGameComponent(gameType); }
+    catch { return null; }
+  })();
 
   function handleMove(move) {
     if (!state) return;
