@@ -19,6 +19,7 @@ const REGISTRY = {
     id: 'tictactoe',
     label: 'Tic-Tac-Toe',
     description: 'Classic 3×3 strategy game. First to three in a row wins.',
+    icon: '⭕',
     minPlayers: 2,
     maxPlayers: 2,
     logic: tictactoeLogic,
@@ -51,3 +52,4 @@ export function getGameMeta(gameType) {
 export function getAllGames() {
   return Object.values(REGISTRY).map(({ logic, component, ...meta }) => meta);
 }
+

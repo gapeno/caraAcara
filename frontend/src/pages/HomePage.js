@@ -56,7 +56,7 @@ export default function HomePage({ onLogin, currentUser }) {
                 className="game-card"
                 onClick={() => handleSelectGame(game.id)}
               >
-                <div className="game-card-icon">{GAME_ICONS[game.id] ?? '🎮'}</div>
+                <div className="game-card-icon">{game.icon ?? '🎮'}</div>
                 <h3>{game.label}</h3>
                 <p>{game.description}</p>
                 <span className="players-badge">{game.minPlayers}–{game.maxPlayers} players</span>
@@ -69,8 +69,3 @@ export default function HomePage({ onLogin, currentUser }) {
   );
 }
 
-const GAME_ICONS = {
-  tictactoe: '⭕',
-  minesweeper: '💣',
-  guessWho: '🤔',
-};
