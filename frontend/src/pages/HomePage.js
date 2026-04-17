@@ -6,11 +6,16 @@ import './HomePage.css';
 export default function HomePage({ onLogin, currentUser }) {
   const [username, setUsername] = useState('');
   const [games, setGames] = useState([]);
+  const [gamesError, setGamesError] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    listGames().then(setGames).catch(console.error);
-  }, []);
+    if (!currentUser) return;
+    setGamesError(false);
+    listGames()
+      .then(setGames)
+      .catch(() => setGamesError(true));
+  }, [currentUser]);
 
   function handleLogin(e) {
     e.preventDefault();
@@ -52,6 +57,7 @@ export default function HomePage({ onLogin, currentUser }) {
         <section className="game-select-section">
           <h2>welcome, <span className="username">{currentUser}</span></h2>
           <p className="subtitle">pick a game to start</p>
+          {gamesError && <p className="games-error">could not reach the server. is the backend running?</p>}
           <div className="game-grid">
             {games.map((game) => (
               <button
