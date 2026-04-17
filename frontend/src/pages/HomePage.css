@@ -87,6 +87,12 @@
   margin-bottom: 2rem;
 }
 
+.games-error {
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
 .game-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
