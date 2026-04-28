@@ -1,0 +1,106 @@
+.lobby-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+.lobby-page .btn-back {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+  margin-bottom: 2rem;
+}
+
+.lobby-page .btn-back:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.lobby-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.lobby-title {
+  margin: 0;
+  font-size: 1.5rem;
+  text-align: center;
+  color: var(--text);
+  text-transform: capitalize;
+}
+
+.lobby-player {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lobby-badge {
+  margin-left: auto;
+  font-size: 0.75rem;
+  background: var(--accent-dim);
+  color: var(--accent);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+
+.lobby-name {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.lobby-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.lobby-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.lobby-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.lobby-input:focus {
+  border-color: var(--accent);
+}
+
+.lobby-error {
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.lobby-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+}
