@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { listGames } from '../api/gameApi';
 import './HomePage.css';
 
@@ -8,6 +8,7 @@ export default function HomePage({ onLogin, currentUser }) {
   const [games, setGames] = useState([]);
   const [gamesError, setGamesError] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!currentUser) return;
@@ -22,10 +23,12 @@ export default function HomePage({ onLogin, currentUser }) {
     const name = username.trim();
     if (!name) return;
     onLogin(name);
+    const next = location.state?.next;
+    if (next) navigate(next);
   }
 
   function handleSelectGame(gameId) {
-    navigate(`/game/${gameId}`);
+    navigate(`/lobby/${gameId}`);
   }
 
   return (

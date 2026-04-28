@@ -1,9 +1,4 @@
-/**
- * useGameState — wraps all game API calls and exposes clean state to components.
- * Components never touch gameApi directly — they only talk to this hook.
- */
-
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import * as gameApi from '../api/gameApi';
 
 export function useGameState() {
@@ -14,13 +9,37 @@ export function useGameState() {
   const [state, setState] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const wsRef = useRef(null);
 
-  const startGame = useCallback(async (type, playerList) => {
+  // Open a WebSocket for the current game; close it when gameId changes or unmounts
+  useEffect(() => {
+    if (!gameId) return;
+
+    const ws = new WebSocket(gameApi.getGameWsUrl(gameId));
+    wsRef.current = ws;
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setGameType(data.game_type);
+      setLabel(data.label ?? null);
+      setPlayers(data.players);
+      setState(data.state);
+    };
+
+    ws.onerror = () => setError('Connection lost — please refresh');
+
+    return () => {
+      ws.close();
+      wsRef.current = null;
+    };
+  }, [gameId]);
+
+  const loadGame = useCallback(async (id) => {
     setLoading(true);
     setError(null);
     try {
-      const result = await gameApi.createGame(type, playerList);
-      setGameId(result.gameId);
+      const result = await gameApi.getGameState(id);
+      setGameId(id);
       setGameType(result.gameType);
       setLabel(result.label ?? null);
       setPlayers(result.players);
@@ -34,31 +53,25 @@ export function useGameState() {
 
   const submitMove = useCallback(async (playerId, move) => {
     if (!gameId) return;
-    setLoading(true);
     setError(null);
     try {
-      const result = await gameApi.makeMove(gameId, playerId, move);
-      setState(result.state);
+      await gameApi.makeMove(gameId, playerId, move);
+      // State update arrives via WebSocket broadcast to both players
     } catch (err) {
       setError(err.message);
-    } finally {
-      setLoading(false);
     }
   }, [gameId]);
 
   const restart = useCallback(async () => {
     if (!gameId) return;
-    setLoading(true);
     setError(null);
     try {
-      const result = await gameApi.resetGame(gameId);
-      setState(result.state);
+      await gameApi.resetGame(gameId);
+      // State update arrives via WebSocket broadcast to both players
     } catch (err) {
       setError(err.message);
-    } finally {
-      setLoading(false);
     }
   }, [gameId]);
 
-  return { gameId, gameType, label, players, state, loading, error, startGame, submitMove, restart };
+  return { gameId, gameType, label, players, state, loading, error, loadGame, submitMove, restart };
 }

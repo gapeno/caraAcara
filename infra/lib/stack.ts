@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as apigw from 'aws-cdk-lib/aws-apigateway';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as ecsPatterns from 'aws-cdk-lib/aws-ecs-patterns';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
@@ -11,8 +12,8 @@ import * as fs from 'fs';
 
 const FRONTEND_BUILD = path.join(__dirname, '../../frontend/build');
 
-// Source.asset() validates the path at synth time, so ensure the directory
-// exists even if the real build hasn't run yet (first-time deploy).
+// Source.asset() validates the path at synth time — create a placeholder if the
+// real build hasn't run yet (first-time deploy).
 if (!fs.existsSync(FRONTEND_BUILD)) {
   fs.mkdirSync(FRONTEND_BUILD, { recursive: true });
   fs.writeFileSync(
@@ -25,33 +26,30 @@ export class CaraAcaraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // ── Backend ───────────────────────────────────────────────────────────────
+    // ── Backend (ECS Fargate + ALB) ───────────────────────────────────────────
+    // Fargate keeps a persistent process, which WebSocket connections require.
+    // Lambda cannot hold open connections, so we run a plain uvicorn server here.
 
-    const backendFn = new lambda.Function(this, 'BackendFn', {
-      runtime: lambda.Runtime.PYTHON_3_12,
-      handler: 'main.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../backend'), {
-        bundling: {
-          image: lambda.Runtime.PYTHON_3_12.bundlingImage,
-          // Force x86_64 so compiled extensions (e.g. pydantic-core) match Lambda's architecture
-          platform: 'linux/amd64',
-          command: [
-            'bash', '-c',
-            'pip install -r requirements.txt -t /asset-output && cp -au . /asset-output',
-          ],
+    const vpc = new ec2.Vpc(this, 'Vpc', { maxAzs: 2 });
+    const cluster = new ecs.Cluster(this, 'Cluster', { vpc });
+
+    const backendService = new ecsPatterns.ApplicationLoadBalancedFargateService(
+      this, 'BackendService', {
+        cluster,
+        memoryLimitMiB: 512,
+        cpu: 256,
+        taskImageOptions: {
+          image: ecs.ContainerImage.fromAsset(path.join(__dirname, '../../backend')),
+          containerPort: 8000,
         },
-      }),
-      timeout: cdk.Duration.seconds(30),
-      memorySize: 256,
-    });
+        publicLoadBalancer: true,
+        desiredCount: 1,
+      },
+    );
 
-    // Proxy all requests to the Lambda — FastAPI/Mangum handles routing
-    const api = new apigw.LambdaRestApi(this, 'Api', {
-      handler: backendFn,
-      proxy: true,
-    });
+    backendService.targetGroup.configureHealthCheck({ path: '/health' });
 
-    // ── Frontend ──────────────────────────────────────────────────────────────
+    // ── Frontend (S3 + CloudFront) ─────────────────────────────────────────────
 
     const frontendBucket = new s3.Bucket(this, 'FrontendBucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -59,13 +57,32 @@ export class CaraAcaraStack extends cdk.Stack {
       autoDeleteObjects: true,
     });
 
-    const distribution = new cloudfront.Distribution(this, 'FrontendDist', {
+    // Shared behavior for the two API path patterns.
+    // CACHING_DISABLED + ALL_VIEWER_EXCEPT_HOST_HEADER ensures CloudFront forwards
+    // WebSocket upgrade headers (Upgrade, Connection, Sec-WebSocket-*) to the ALB.
+    const albOrigin = new origins.HttpOrigin(
+      backendService.loadBalancer.loadBalancerDnsName,
+      { protocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY },
+    );
+
+    const apiBehavior: cloudfront.BehaviorOptions = {
+      origin: albOrigin,
+      viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+      cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+      originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+    };
+
+    const distribution = new cloudfront.Distribution(this, 'Distribution', {
       defaultBehavior: {
         origin: origins.S3BucketOrigin.withOriginAccessControl(frontendBucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       },
+      additionalBehaviors: {
+        '/games/*': apiBehavior,
+        '/health':  apiBehavior,
+      },
       defaultRootObject: 'index.html',
-      // SPA fallback: let React Router handle unknown paths
       errorResponses: [
         { httpStatus: 403, responseHttpStatus: 200, responsePagePath: '/index.html' },
         { httpStatus: 404, responseHttpStatus: 200, responsePagePath: '/index.html' },
@@ -73,26 +90,23 @@ export class CaraAcaraStack extends cdk.Stack {
     });
 
     new s3deploy.BucketDeployment(this, 'FrontendDeploy', {
-      sources: [s3deploy.Source.asset(path.join(__dirname, '../../frontend/build'))],
+      sources: [s3deploy.Source.asset(FRONTEND_BUILD)],
       destinationBucket: frontendBucket,
       distribution,
       distributionPaths: ['/*'],
     });
 
-    // Tell the backend to accept CORS requests from the CloudFront domain
-    backendFn.addEnvironment(
+    // Frontend and API share the same origin (CloudFront domain) — set CORS accordingly.
+    backendService.taskDefinition.defaultContainer!.addEnvironment(
       'CORS_ORIGIN',
       `https://${distribution.distributionDomainName}`,
     );
 
     // ── Outputs ───────────────────────────────────────────────────────────────
 
-    new cdk.CfnOutput(this, 'ApiUrl', {
-      value: api.url,
-      description: 'Paste this into REACT_APP_API_URL before npm run build',
-    });
-    new cdk.CfnOutput(this, 'FrontendUrl', {
+    new cdk.CfnOutput(this, 'AppUrl', {
       value: `https://${distribution.distributionDomainName}`,
+      description: 'App URL — use as REACT_APP_API_URL before npm run build',
     });
   }
 }

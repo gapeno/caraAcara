@@ -1,12 +1,43 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 from uuid import uuid4
+from collections import defaultdict
 from games.registry import get_game_logic, get_game_meta, list_games
 
 router = APIRouter(prefix="/games", tags=["games"])
 
 # In-memory store — replaced by DynamoDB in Phase 3
 _store: dict = {}
+
+
+# ── WebSocket connection manager ──────────────────────────────────────────────
+
+class ConnectionManager:
+    def __init__(self):
+        self._rooms: dict[str, list[WebSocket]] = defaultdict(list)
+
+    async def connect(self, game_id: str, ws: WebSocket):
+        await ws.accept()
+        self._rooms[game_id].append(ws)
+
+    def disconnect(self, game_id: str, ws: WebSocket):
+        try:
+            self._rooms[game_id].remove(ws)
+        except ValueError:
+            pass
+
+    async def broadcast(self, game_id: str, payload: dict):
+        dead = []
+        for ws in list(self._rooms[game_id]):
+            try:
+                await ws.send_json(payload)
+            except Exception:
+                dead.append(ws)
+        for ws in dead:
+            self.disconnect(game_id, ws)
+
+
+manager = ConnectionManager()
 
 
 # ── Request models ────────────────────────────────────────────────────────────
@@ -37,13 +68,11 @@ def _game_or_404(game_id: str) -> dict:
 
 @router.get("")
 def get_all_games():
-    """GET /games — list all available game types."""
     return list_games()
 
 
 @router.post("")
 def create_game(body: CreateGameRequest):
-    """POST /games — create a new game session."""
     try:
         logic = get_game_logic(body.game_type)
         meta = get_game_meta(body.game_type)
@@ -66,13 +95,11 @@ def create_game(body: CreateGameRequest):
 
 @router.get("/{game_id}")
 def get_game(game_id: str):
-    """GET /games/:id — get current game state."""
     return _game_or_404(game_id)
 
 
 @router.post("/{game_id}/moves")
-def make_move(game_id: str, body: MakeMoveRequest):
-    """POST /games/:id/moves — apply a player move."""
+async def make_move(game_id: str, body: MakeMoveRequest):
     game = _game_or_404(game_id)
     logic = get_game_logic(game["game_type"])
 
@@ -80,13 +107,31 @@ def make_move(game_id: str, body: MakeMoveRequest):
         raise HTTPException(status_code=400, detail="Invalid move")
 
     game["state"] = logic.apply_move(game["state"], body.move, body.player_id)
+    await manager.broadcast(game_id, game)
     return game
 
 
 @router.post("/{game_id}/reset")
-def reset_game(game_id: str):
-    """POST /games/:id/reset — restart the game."""
+async def reset_game(game_id: str):
     game = _game_or_404(game_id)
     logic = get_game_logic(game["game_type"])
     game["state"] = logic.initial_state(game["players"])
+    await manager.broadcast(game_id, game)
     return game
+
+
+@router.websocket("/{game_id}/ws")
+async def game_ws(game_id: str, websocket: WebSocket):
+    if game_id not in _store:
+        await websocket.close(code=1008)
+        return
+
+    await manager.connect(game_id, websocket)
+    try:
+        await websocket.send_json(_store[game_id])
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        pass
+    finally:
+        manager.disconnect(game_id, websocket)
