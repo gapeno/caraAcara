@@ -7,6 +7,19 @@ import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Construct } from 'constructs';
 import * as path from 'path';
+import * as fs from 'fs';
+
+const FRONTEND_BUILD = path.join(__dirname, '../../frontend/build');
+
+// Source.asset() validates the path at synth time, so ensure the directory
+// exists even if the real build hasn't run yet (first-time deploy).
+if (!fs.existsSync(FRONTEND_BUILD)) {
+  fs.mkdirSync(FRONTEND_BUILD, { recursive: true });
+  fs.writeFileSync(
+    path.join(FRONTEND_BUILD, 'index.html'),
+    '<html><body><p>Deploying…</p></body></html>',
+  );
+}
 
 export class CaraAcaraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -19,8 +32,9 @@ export class CaraAcaraStack extends cdk.Stack {
       handler: 'main.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../../backend'), {
         bundling: {
-          // Uses the official Lambda Docker image to pip-install dependencies
           image: lambda.Runtime.PYTHON_3_12.bundlingImage,
+          // Force x86_64 so compiled extensions (e.g. pydantic-core) match Lambda's architecture
+          platform: 'linux/amd64',
           command: [
             'bash', '-c',
             'pip install -r requirements.txt -t /asset-output && cp -au . /asset-output',
