@@ -83,6 +83,7 @@ export class CaraAcaraStack extends cdk.Stack {
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       },
       additionalBehaviors: {
+        '/games':   apiBehavior,
         '/games/*': apiBehavior,
         '/health':  apiBehavior,
       },
