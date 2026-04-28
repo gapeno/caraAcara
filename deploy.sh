@@ -54,16 +54,14 @@ npx cdk deploy \
   --outputs-file "$OUTPUTS_FILE" \
   --require-approval never
 
-API_URL=$(jq -r '.CaraAcaraStack.ApiUrl' "$OUTPUTS_FILE")
-FRONTEND_URL=$(jq -r '.CaraAcaraStack.FrontendUrl' "$OUTPUTS_FILE")
+APP_URL=$(jq -r '.CaraAcaraStack.AppUrl' "$OUTPUTS_FILE")
 
-success "API URL: $API_URL"
-success "Frontend URL: $FRONTEND_URL"
+success "App URL: $APP_URL"
 
 # ── Phase 2: build the real frontend ─────────────────────────────────────────
-info "Phase 2: building frontend with real API URL..."
+info "Phase 2: building frontend with real URL..."
 cd "$ROOT/frontend"
-REACT_APP_API_URL="$API_URL" npm run build
+REACT_APP_API_URL="$APP_URL" npm run build
 success "Frontend built"
 
 # ── Phase 3: re-deploy to upload the real frontend ───────────────────────────
@@ -75,5 +73,4 @@ npx cdk deploy \
 
 success "Deployment complete"
 echo ""
-echo -e "  Frontend → ${GREEN}$FRONTEND_URL${NC}"
-echo -e "  API      → ${GREEN}$API_URL${NC}"
+echo -e "  App → ${GREEN}$APP_URL${NC}"
