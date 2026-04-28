@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as ecsPatterns from 'aws-cdk-lib/aws-ecs-patterns';
+import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
@@ -39,7 +40,10 @@ export class CaraAcaraStack extends cdk.Stack {
         memoryLimitMiB: 512,
         cpu: 256,
         taskImageOptions: {
-          image: ecs.ContainerImage.fromAsset(path.join(__dirname, '../../backend')),
+          image: ecs.ContainerImage.fromAsset(path.join(__dirname, '../../backend'), {
+            // Force x86_64 so the image matches Fargate's default architecture
+            platform: Platform.LINUX_AMD64,
+          }),
           containerPort: 8000,
         },
         publicLoadBalancer: true,
@@ -79,6 +83,7 @@ export class CaraAcaraStack extends cdk.Stack {
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       },
       additionalBehaviors: {
+        '/games':   apiBehavior,
         '/games/*': apiBehavior,
         '/health':  apiBehavior,
       },
