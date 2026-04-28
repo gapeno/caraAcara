@@ -47,7 +47,7 @@ export async function createGame(gameType, players) {
 /** GET /games/:id — get current game state. */
 export async function getGameState(gameId) {
   const data = await request('GET', `/games/${gameId}`);
-  return { gameId: data.id, gameType: data.game_type, players: data.players, state: data.state };
+  return { gameId: data.id, gameType: data.game_type, label: data.label, players: data.players, state: data.state };
 }
 
 /** POST /games/:id/moves — apply a player move. */

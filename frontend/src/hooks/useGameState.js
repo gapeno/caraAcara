@@ -15,6 +15,33 @@ export function useGameState() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const loadGame = useCallback(async (id) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await gameApi.getGameState(id);
+      setGameId(id);
+      setGameType(result.gameType);
+      setLabel(result.label ?? null);
+      setPlayers(result.players);
+      setState(result.state);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const refreshGame = useCallback(async (id) => {
+    try {
+      const result = await gameApi.getGameState(id);
+      setPlayers(result.players);
+      setState(result.state);
+    } catch {
+      // silent — don't show error on background poll
+    }
+  }, []);
+
   const startGame = useCallback(async (type, playerList) => {
     setLoading(true);
     setError(null);
@@ -60,5 +87,5 @@ export function useGameState() {
     }
   }, [gameId]);
 
-  return { gameId, gameType, label, players, state, loading, error, startGame, submitMove, restart };
+  return { gameId, gameType, label, players, state, loading, error, loadGame, refreshGame, startGame, submitMove, restart };
 }
