@@ -6,10 +6,12 @@
 
 import TicTacToe from './tictactoe/TicTacToe';
 import Minesweeper from './minesweeper/Minesweeper';
+import DotsAndBoxes from './dotsandboxes/DotsAndBoxes';
 
 const COMPONENTS = {
   tictactoe: TicTacToe,
   minesweeper: Minesweeper,
+  dotsandboxes: DotsAndBoxes,
   // guess_who: GuessWho,
 };
 
