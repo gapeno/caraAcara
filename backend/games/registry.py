@@ -13,12 +13,13 @@ Each entry:
 
 from games.tictactoe import logic as tictactoe_logic
 from games.minesweeper import logic as minesweeper_logic
+from games.dotsandboxes import logic as dotsandboxes_logic
 
 REGISTRY: dict = {
     "tictactoe": {
         "id": "tictactoe",
         "label": "Tic-Tac-Toe",
-        "description": "Classic 3×3 strategy game. First to three in a row wins.",
+        "description": "First to three in a row wins.",
         "icon": "⭕",
         "min_players": 2,
         "max_players": 2,
@@ -27,11 +28,20 @@ REGISTRY: dict = {
     "minesweeper": {
         "id": "minesweeper",
         "label": "Minesweeper",
-        "description": "Take turns clearing the 20×20 field. Hit a mine and your opponent wins.",
+        "description": "Hit a mine and your opponent wins.",
         "icon": "💣",
         "min_players": 2,
         "max_players": 2,
         "logic": minesweeper_logic,
+    },
+    "dotsandboxes": {
+        "id": "dotsandboxes",
+        "label": "Dots and Boxes",
+        "description": "Claim edges to complete boxes.",
+        "icon": "📦",
+        "min_players": 2,
+        "max_players": 2,
+        "logic": dotsandboxes_logic,
     },
     # Phase 2 — add more games here:
     # "guess_who": { ... },
