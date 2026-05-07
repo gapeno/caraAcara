@@ -1,39 +1,31 @@
 # caraAcara
 
-A cloud-native platform for 2-player board games. Players connect in real time via WebSockets — no account required, just enter a name, pick a game, and share the link.
+A cloud-native platform where players connect in real time for board games.
+
+Just enter a name, pick a game, and share the link.
 
 ## Architecture
 
 ```
-Browser ──HTTPS──► CloudFront ──► S3
-                              └──► ALB ──► ECS Fargate
+Browser ──HTTPS──► CloudFront ──frontend──► S3
+                              └──backend──► ALB ──► ECS Fargate
 ```
 
-- **Frontend** — React, served from S3 via CloudFront
-- **Backend** — FastAPI running on ECS Fargate, reachable at `/games/*`
-- **Infrastructure** — AWS CDK in `infra/`
+- **Frontend:** React, served from S3 via CloudFront
+- **Backend:** FastAPI running on ECS Fargate
+- **Infrastructure:** AWS CDK
 
+## Deploy
 <details>
-<summary>## Adding a game</summary>
-
-1. Create `backend/games/<name>/logic.py` with three functions:
-
-2. Register it in `backend/games/registry.py`:
-
-3. Add a React component in `frontend/src/games/<name>/` and register it in `frontend/src/games/components.js`.
-</details>
-
-<details>
-<summary>## Running locally</summary>
-
-**Terminal 1 — backend**
+<summary>Local</summary>
+**Terminal 1 - backend**
 ```bash
 cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-**Terminal 2 — frontend**
+**Terminal 2 - frontend**
 ```bash
 cd frontend
 npm install
@@ -46,8 +38,7 @@ To test with two separate players, open the share link from the lobby in an inco
 </details>
 
 <details>
-<summary>## Deploying to AWS</summary>
-
+<summary>Production</summary>
 ```bash
 aws login
 ./deploy.sh
@@ -56,9 +47,8 @@ aws login
 The script builds the frontend and then deploys everything.
 </details>
 
+## Project structure
 <details>
-<summary>## Project structure</summary>
-
 ```
 caraAcara/
 ├── backend/
