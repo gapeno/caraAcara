@@ -1,6 +1,8 @@
 # caraAcara
 
-A cloud-native platform for 2-player board games. Players connect in real time via WebSockets — no account required, just enter a name, pick a game, and share the link.
+A cloud-native platform for 2-player board games. Players connect in real time via WebSockets.
+
+Just enter a name, pick a game, and share the link.
 
 ## Architecture
 
