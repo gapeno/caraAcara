@@ -27,6 +27,14 @@ aws sts get-caller-identity &>/dev/null 2>&1 \
 
 success "All prerequisites met"
 
+# ── Frontend build ────────────────────────────────────────────────────────────
+# The frontend uses relative API paths (/games/…) so no URL is needed at build time.
+info "Building frontend..."
+cd "$ROOT/frontend"
+npm install --silent
+npm run build
+success "Frontend built"
+
 # ── CDK install ───────────────────────────────────────────────────────────────
 info "Installing CDK dependencies..."
 cd "$ROOT/infra"
@@ -37,16 +45,8 @@ success "CDK dependencies ready"
 info "Bootstrapping CDK (safe to re-run)..."
 npx cdk bootstrap
 
-# ── Phase 1: deploy with a placeholder frontend ───────────────────────────────
-# BucketDeployment requires frontend/build to exist at synth time.
-# We deploy once to get the real API URL, then rebuild the frontend with it.
-if [ ! -d "$ROOT/frontend/build" ]; then
-  warn "No frontend/build found — creating a placeholder for the first deploy"
-  mkdir -p "$ROOT/frontend/build"
-  echo '<html><body><p>Deploying...</p></body></html>' > "$ROOT/frontend/build/index.html"
-fi
-
-info "Phase 1: deploying stack to get API URL..."
+# ── Deploy ────────────────────────────────────────────────────────────────────
+info "Deploying stack..."
 OUTPUTS_FILE="$(mktemp /tmp/cdk-outputs.XXXXXX.json)"
 trap 'rm -f "$OUTPUTS_FILE"' EXIT
 
@@ -55,21 +55,6 @@ npx cdk deploy \
   --require-approval never
 
 APP_URL=$(jq -r '.CaraAcaraStack.AppUrl' "$OUTPUTS_FILE")
-
-success "App URL: $APP_URL"
-
-# ── Phase 2: build the real frontend ─────────────────────────────────────────
-info "Phase 2: building frontend with real URL..."
-cd "$ROOT/frontend"
-REACT_APP_API_URL="$APP_URL" npm run build
-success "Frontend built"
-
-# ── Phase 3: re-deploy to upload the real frontend ───────────────────────────
-info "Phase 3: uploading frontend to S3 and invalidating CloudFront..."
-cd "$ROOT/infra"
-npx cdk deploy \
-  --outputs-file "$OUTPUTS_FILE" \
-  --require-approval never
 
 success "Deployment complete"
 echo ""

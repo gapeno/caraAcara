@@ -2,7 +2,7 @@
  * Game API client — all game logic lives in the backend.
  * The frontend never computes state; it only sends requests and renders responses.
  *
- * Endpoints (FastAPI on localhost:8000, Lambda in production):
+ * Endpoints:
  *   GET  /games                → listGames
  *   POST /games                → createGame
  *   GET  /games/:id            → getGameState
@@ -10,10 +10,17 @@
  *   POST /games/:id/reset      → resetGame
  */
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+// Empty string → relative paths, so the browser resolves against its current origin.
+// In production the frontend and API share the same CloudFront domain, so no URL is needed.
+// In local dev, REACT_APP_API_URL=http://localhost:8000 (set in .env.development).
+const BASE_URL = process.env.REACT_APP_API_URL || '';
 
 export function getGameWsUrl(gameId) {
-  return `${BASE_URL.replace(/^http/, 'ws')}/games/${gameId}/ws`;
+  const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  const base = BASE_URL
+    ? BASE_URL.replace(/^http/, 'ws')
+    : `${proto}://${window.location.host}`;
+  return `${base}/games/${gameId}/ws`;
 }
 
 async function request(method, path, body) {
