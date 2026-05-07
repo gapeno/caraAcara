@@ -2,7 +2,7 @@
  * Game API client — all game logic lives in the backend.
  * The frontend never computes state; it only sends requests and renders responses.
  *
- * Endpoints (FastAPI on localhost:8000, Lambda in production):
+ * Endpoints:
  *   GET  /games                → listGames
  *   POST /games                → createGame
  *   GET  /games/:id            → getGameState
@@ -10,14 +10,13 @@
  *   POST /games/:id/reset      → resetGame
  */
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-
 export function getGameWsUrl(gameId) {
-  return `${BASE_URL.replace(/^http/, 'ws')}/games/${gameId}/ws`;
+  const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  return `${proto}://${window.location.host}/games/${gameId}/ws`;
 }
 
 async function request(method, path, body) {
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const res = await fetch(path, {
     method,
     headers: { 'Content-Type': 'application/json' },
     body: body ? JSON.stringify(body) : undefined,

@@ -9,19 +9,8 @@ import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Construct } from 'constructs';
 import * as path from 'path';
-import * as fs from 'fs';
 
 const FRONTEND_BUILD = path.join(__dirname, '../../frontend/build');
-
-// Source.asset() validates the path at synth time — create a placeholder if the
-// real build hasn't run yet (first-time deploy).
-if (!fs.existsSync(FRONTEND_BUILD)) {
-  fs.mkdirSync(FRONTEND_BUILD, { recursive: true });
-  fs.writeFileSync(
-    path.join(FRONTEND_BUILD, 'index.html'),
-    '<html><body><p>Deploying…</p></body></html>',
-  );
-}
 
 export class CaraAcaraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
