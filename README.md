@@ -12,8 +12,8 @@ Browser ──HTTPS──► CloudFront ──frontend──► S3
 ```
 
 - **Frontend:** React, served from S3 via CloudFront
-- **Backend:** FastAPI running on ECS Fargate
-- **Infrastructure:** AWS CDK
+- **Backend:** FastAPI with WebSockets running on ECS Fargate
+- **Infrastructure:** infra as code with AWS CDK
 
 ## Deploy
 <details>
@@ -53,6 +53,7 @@ The script builds the frontend and then deploys everything.
 
 ## Project structure
 <details>
+
 ```
 caraAcara/
 ├── backend/
@@ -71,6 +72,7 @@ caraAcara/
 └── infra/
     └── lib/stack.ts          # CDK stack (VPC, ECS, S3, CloudFront)
 ```
+
 </details>
 
 ## License
