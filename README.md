@@ -7,8 +7,8 @@ Just enter a name, pick a game, and share the link.
 ## Architecture
 
 ```
-Browser ──HTTPS──► CloudFront ──► S3
-                              └──► ALB ──► ECS Fargate
+Browser ──HTTPS──► CloudFront ──frontend──► S3
+                              └──backend──► ALB ──► ECS Fargate
 ```
 
 - **Frontend:** React, served from S3 via CloudFront
