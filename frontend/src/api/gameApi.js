@@ -10,21 +10,13 @@
  *   POST /games/:id/reset      → resetGame
  */
 
-// Empty string → relative paths, so the browser resolves against its current origin.
-// In production the frontend and API share the same CloudFront domain, so no URL is needed.
-// In local dev, REACT_APP_API_URL=http://localhost:8000 (set in .env.development).
-const BASE_URL = process.env.REACT_APP_API_URL || '';
-
 export function getGameWsUrl(gameId) {
   const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
-  const base = BASE_URL
-    ? BASE_URL.replace(/^http/, 'ws')
-    : `${proto}://${window.location.host}`;
-  return `${base}/games/${gameId}/ws`;
+  return `${proto}://${window.location.host}/games/${gameId}/ws`;
 }
 
 async function request(method, path, body) {
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const res = await fetch(path, {
     method,
     headers: { 'Content-Type': 'application/json' },
     body: body ? JSON.stringify(body) : undefined,
