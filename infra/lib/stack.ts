@@ -7,6 +7,9 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
+import * as acm from 'aws-cdk-lib/aws-certificatemanager';
+import * as route53 from 'aws-cdk-lib/aws-route53';
+import * as route53targets from 'aws-cdk-lib/aws-route53-targets';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
@@ -14,6 +17,10 @@ const FRONTEND_BUILD = path.join(__dirname, '../../frontend/build');
 // Built by `deploy.sh` (pip install --platform manylinux2014_x86_64 --target),
 // so CDK just zips a plain directory — no Docker involved.
 const BACKEND_LAMBDA_PACKAGE = path.join(__dirname, '../../backend/build');
+
+// Registered in Route 53 (hosted zone already exists in this account).
+const DOMAIN_NAME = 'caracara.click';
+const HOSTED_ZONE_ID = 'Z08049721S10X85ASC9HT';
 
 export class CaraAcaraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -146,7 +153,21 @@ export class CaraAcaraStack extends cdk.Stack {
       autoDeleteObjects: true,
     });
 
+    const hostedZone = route53.HostedZone.fromHostedZoneAttributes(this, 'HostedZone', {
+      hostedZoneId: HOSTED_ZONE_ID,
+      zoneName: DOMAIN_NAME,
+    });
+
+    // CloudFront requires its certificate in us-east-1 — this stack already
+    // deploys there, so no cross-region cert stack is needed.
+    const certificate = new acm.Certificate(this, 'SiteCertificate', {
+      domainName: DOMAIN_NAME,
+      validation: acm.CertificateValidation.fromDns(hostedZone),
+    });
+
     const distribution = new cloudfront.Distribution(this, 'Distribution', {
+      domainNames: [DOMAIN_NAME],
+      certificate,
       defaultBehavior: {
         origin: origins.S3BucketOrigin.withOriginAccessControl(frontendBucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
@@ -156,6 +177,15 @@ export class CaraAcaraStack extends cdk.Stack {
         { httpStatus: 403, responseHttpStatus: 200, responsePagePath: '/index.html' },
         { httpStatus: 404, responseHttpStatus: 200, responsePagePath: '/index.html' },
       ],
+    });
+
+    new route53.ARecord(this, 'SiteAliasRecordV4', {
+      zone: hostedZone,
+      target: route53.RecordTarget.fromAlias(new route53targets.CloudFrontTarget(distribution)),
+    });
+    new route53.AaaaRecord(this, 'SiteAliasRecordV6', {
+      zone: hostedZone,
+      target: route53.RecordTarget.fromAlias(new route53targets.CloudFrontTarget(distribution)),
     });
 
     const frontendDeploy = new s3deploy.BucketDeployment(this, 'FrontendDeploy', {
@@ -184,13 +214,18 @@ export class CaraAcaraStack extends cdk.Stack {
     configDeploy.node.addDependency(frontendDeploy);
 
     // Frontend and API are cross-origin — set CORS accordingly.
-    restFn.addEnvironment('CORS_ORIGIN', `https://${distribution.distributionDomainName}`);
+    restFn.addEnvironment('CORS_ORIGIN', `https://${DOMAIN_NAME}`);
 
     // ── Outputs ───────────────────────────────────────────────────────────────
 
     new cdk.CfnOutput(this, 'AppUrl', {
-      value: `https://${distribution.distributionDomainName}`,
+      value: `https://${DOMAIN_NAME}`,
       description: 'App URL',
+    });
+
+    new cdk.CfnOutput(this, 'CloudFrontDomain', {
+      value: `https://${distribution.distributionDomainName}`,
+      description: 'Raw CloudFront domain (fallback, also works)',
     });
 
     new cdk.CfnOutput(this, 'HttpApiUrl', {
