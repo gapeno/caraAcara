@@ -14,6 +14,7 @@ Each entry:
 from games.tictactoe import logic as tictactoe_logic
 from games.minesweeper import logic as minesweeper_logic
 from games.dotsandboxes import logic as dotsandboxes_logic
+from games.connectfour import logic as connectfour_logic
 
 REGISTRY: dict = {
     "tictactoe": {
@@ -42,6 +43,15 @@ REGISTRY: dict = {
         "min_players": 2,
         "max_players": 2,
         "logic": dotsandboxes_logic,
+    },
+    "connectfour": {
+        "id": "connectfour",
+        "label": "Connect Four",
+        "description": "four in a row wins",
+        "icon": "🟡",
+        "min_players": 2,
+        "max_players": 2,
+        "logic": connectfour_logic,
     },
     # Phase 2 — add more games here:
     # "guess_who": { ... },

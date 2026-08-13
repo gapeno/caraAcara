@@ -1,0 +1,165 @@
+.c4-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 480px;
+}
+
+/* Players row */
+.c4-players {
+  display: flex;
+  gap: 2rem;
+}
+
+.c4-player {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  transition: border-color 0.2s, background 0.2s;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.c4-player.active {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.c4-player.winner {
+  border-color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.c4-disc-icon {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.c4-disc-icon.disc-p1 {
+  background: var(--accent);
+}
+
+.c4-disc-icon.disc-p2 {
+  background: #64b5f6;
+}
+
+.c4-name {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90px;
+}
+
+/* Status */
+.c4-status {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  min-height: 1.6rem;
+}
+
+.c4-status.game-over {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Board */
+.c4-board {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  gap: 6px;
+  width: 100%;
+}
+
+.c4-drop {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.25rem 0;
+}
+
+.c4-drop:hover:not(:disabled) {
+  color: var(--accent);
+}
+
+.c4-drop:disabled {
+  opacity: 0.2;
+  cursor: default;
+}
+
+.c4-cell {
+  aspect-ratio: 1;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.c4-cell:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.c4-cell:disabled {
+  cursor: default;
+}
+
+.c4-disc {
+  width: 72%;
+  height: 72%;
+  border-radius: 50%;
+}
+
+.c4-disc.disc-empty {
+  background: transparent;
+}
+
+.c4-disc.disc-p1 {
+  background: var(--accent);
+  animation: drop 0.2s ease-out;
+}
+
+.c4-disc.disc-p2 {
+  background: #64b5f6;
+  animation: drop 0.2s ease-out;
+}
+
+.c4-disc.win-disc {
+  box-shadow: 0 0 0 3px #4caf50;
+}
+
+@keyframes drop {
+  from { transform: translateY(-140%); opacity: 0; }
+  to   { transform: translateY(0);      opacity: 1; }
+}
+
+/* Restart */
+.c4-restart {
+  margin-top: 0.5rem;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .c4-board {
+    gap: 4px;
+  }
+
+  .c4-players {
+    gap: 1rem;
+  }
+}
