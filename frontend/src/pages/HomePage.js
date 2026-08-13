@@ -6,6 +6,7 @@ import './HomePage.css';
 export default function HomePage({ onLogin, currentUser }) {
   const [username, setUsername] = useState('');
   const [games, setGames] = useState([]);
+  const [gamesLoading, setGamesLoading] = useState(true);
   const [gamesError, setGamesError] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -13,9 +14,11 @@ export default function HomePage({ onLogin, currentUser }) {
   useEffect(() => {
     if (!currentUser) return;
     setGamesError(false);
+    setGamesLoading(true);
     listGames()
       .then(setGames)
-      .catch(() => setGamesError(true));
+      .catch(() => setGamesError(true))
+      .finally(() => setGamesLoading(false));
   }, [currentUser]);
 
   function handleLogin(e) {
@@ -61,8 +64,9 @@ export default function HomePage({ onLogin, currentUser }) {
           <h2>welcome, <span className="username">{currentUser}</span></h2>
           <p className="subtitle">pick a game to start</p>
           {gamesError && <p className="games-error">could not reach the server. is the backend running?</p>}
+          {gamesLoading && !gamesError && <div className="spinner" aria-label="loading games" />}
           <div className="game-grid">
-            {games.map((game) => (
+            {!gamesLoading && games.map((game) => (
               <button
                 key={game.id}
                 className="game-card"

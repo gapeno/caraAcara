@@ -6,6 +6,7 @@
  *   GET  /games                → listGames
  *   POST /games                → createGame
  *   GET  /games/:id            → getGameState
+ *   POST /games/:id/join       → joinGame
  *   POST /games/:id/moves      → makeMove
  *   POST /games/:id/reset      → resetGame
  */
@@ -56,6 +57,12 @@ export async function createGame(gameType, players) {
 export async function getGameState(gameId) {
   const data = await request('GET', `/games/${gameId}`);
   return { gameId: data.id, gameType: data.game_type, label: data.label, players: data.players, state: data.state };
+}
+
+/** POST /games/:id/join — set/update a player's real name when they join. */
+export async function joinGame(gameId, playerId, name) {
+  const data = await request('POST', `/games/${gameId}/join`, { player_id: playerId, name });
+  return { gameId: data.id, gameType: data.game_type, players: data.players, state: data.state };
 }
 
 /** POST /games/:id/moves — apply a player move. */

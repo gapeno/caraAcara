@@ -1,6 +1,6 @@
+import secrets
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
-from uuid import uuid4
 from games.registry import get_game_logic, get_game_meta, list_games
 from storage import store
 from broadcast import broadcaster
@@ -21,6 +21,10 @@ class CreateGameRequest(BaseModel):
 class MakeMoveRequest(BaseModel):
     player_id: str
     move: dict
+
+class JoinGameRequest(BaseModel):
+    player_id: str
+    name: str
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -48,7 +52,7 @@ def create_game(body: CreateGameRequest):
         raise HTTPException(status_code=400, detail=str(e))
 
     players = [p.model_dump() for p in body.players]
-    game_id = str(uuid4())
+    game_id = secrets.token_urlsafe(6)
     state = logic.initial_state(players)
 
     game = {
@@ -65,6 +69,25 @@ def create_game(body: CreateGameRequest):
 @router.get("/{game_id}")
 def get_game(game_id: str):
     return _game_or_404(game_id)
+
+
+@router.post("/{game_id}/join")
+async def join_game(game_id: str, body: JoinGameRequest):
+    game = _game_or_404(game_id)
+    name = body.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Name is required")
+
+    for p in game["players"]:
+        if p["id"] == body.player_id:
+            p["name"] = name
+            break
+    else:
+        raise HTTPException(status_code=400, detail=f"Unknown player_id {body.player_id!r}")
+
+    store.save(game)
+    await broadcaster.broadcast(game_id, game)
+    return game
 
 
 @router.post("/{game_id}/moves")
