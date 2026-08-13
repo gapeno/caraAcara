@@ -19,7 +19,7 @@ REGISTRY: dict = {
     "tictactoe": {
         "id": "tictactoe",
         "label": "Tic-Tac-Toe",
-        "description": "First to three in a row wins.",
+        "description": "three in a row wins",
         "icon": "⭕",
         "min_players": 2,
         "max_players": 2,
@@ -28,7 +28,7 @@ REGISTRY: dict = {
     "minesweeper": {
         "id": "minesweeper",
         "label": "Minesweeper",
-        "description": "Hit a mine and your opponent wins.",
+        "description": "hit a mine",
         "icon": "💣",
         "min_players": 2,
         "max_players": 2,
@@ -37,7 +37,7 @@ REGISTRY: dict = {
     "dotsandboxes": {
         "id": "dotsandboxes",
         "label": "Dots and Boxes",
-        "description": "Claim edges to complete boxes.",
+        "description": "claim edges faster",
         "icon": "📦",
         "min_players": 2,
         "max_players": 2,

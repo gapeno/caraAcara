@@ -192,6 +192,9 @@ export class CaraAcaraStack extends cdk.Stack {
       destinationBucket: frontendBucket,
       distribution,
       distributionPaths: ['/*'],
+      // frontend/build ships its own placeholder config.json 
+      // excluding it here means this deployment neither uploads nor prunes it.
+      exclude: ['config.json'],
     });
 
     // Runtime config for the frontend — written after the APIs exist, so the

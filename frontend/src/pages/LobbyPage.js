@@ -6,7 +6,6 @@ import './LobbyPage.css';
 export default function LobbyPage({ currentUser }) {
   const { gameType } = useParams();
   const navigate = useNavigate();
-  const [p2Name, setP2Name] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -15,14 +14,13 @@ export default function LobbyPage({ currentUser }) {
     return null;
   }
 
-  async function handleCreate(e) {
-    e.preventDefault();
+  async function handleCreate() {
     setLoading(true);
     setError(null);
     try {
       const players = [
         { id: 'p1', name: currentUser },
-        { id: 'p2', name: p2Name.trim() || 'Player 2' },
+        { id: 'p2', name: 'Player 2' },
       ];
       const result = await createGame(gameType, players);
       localStorage.setItem(`caraAcara_role_${result.gameId}`, 'p1');
@@ -46,25 +44,13 @@ export default function LobbyPage({ currentUser }) {
           <span className="lobby-badge">Player 1</span>
         </div>
 
-        <form className="lobby-form" onSubmit={handleCreate}>
-          <label className="lobby-label" htmlFor="p2-name">opponent's name</label>
-          <input
-            id="p2-name"
-            className="lobby-input"
-            type="text"
-            value={p2Name}
-            onChange={(e) => setP2Name(e.target.value)}
-            placeholder="Player 2"
-            maxLength={20}
-          />
-          {error && <p className="lobby-error">{error}</p>}
-          <button className="btn btn-primary" type="submit" disabled={loading}>
-            {loading ? 'creating…' : 'create game'}
-          </button>
-        </form>
+        {error && <p className="lobby-error">{error}</p>}
+        <button className="btn btn-primary" onClick={handleCreate} disabled={loading}>
+          {loading ? 'creating…' : 'create game'}
+        </button>
 
         <p className="lobby-hint">
-          after creating, you'll get a link to share with your opponent
+          you'll get a link to share with your friend
         </p>
       </div>
     </div>

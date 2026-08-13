@@ -11,6 +11,7 @@ State shape (dict):
     "win_line": list | None,
 }
 """
+import random
 from typing import Optional
 
 WIN_LINES = [
@@ -32,7 +33,7 @@ def initial_state(players: list) -> dict:
     return {
         "board": [None] * 9,
         "players": ids,
-        "current_player": ids[0],
+        "current_player": random.choice(ids),
         "status": "in_progress",
         "winner": None,
         "win_line": None,
