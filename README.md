@@ -8,7 +8,7 @@ Just enter a name, pick a game, and share the link.
 
 ```
 Browser ──HTTPS──► CloudFront ──► S3 (frontend)
-        ──HTTPS/WS──► API Gateway ──► Lambda ──► DynamoDB
+        ──HTTPS/WS──► API Gateway ──► Lambda ──► DynamoDB (backend)
 ```
 
 - **Frontend:** React, served from S3 via CloudFront
