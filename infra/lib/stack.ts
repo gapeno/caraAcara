@@ -18,9 +18,9 @@ const FRONTEND_BUILD = path.join(__dirname, '../../frontend/build');
 // so CDK just zips a plain directory — no Docker involved.
 const BACKEND_LAMBDA_PACKAGE = path.join(__dirname, '../../backend/build');
 
-// Registered in Route 53 (hosted zone already exists in this account).
+// Registered in Route 53. Its hosted zone is resolved automatically below via
+// HostedZone.fromLookup — no zone ID to look up or configure by hand.
 const DOMAIN_NAME = 'caracara.click';
-const HOSTED_ZONE_ID = 'Z08049721S10X85ASC9HT';
 
 export class CaraAcaraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -153,9 +153,8 @@ export class CaraAcaraStack extends cdk.Stack {
       autoDeleteObjects: true,
     });
 
-    const hostedZone = route53.HostedZone.fromHostedZoneAttributes(this, 'HostedZone', {
-      hostedZoneId: HOSTED_ZONE_ID,
-      zoneName: DOMAIN_NAME,
+    const hostedZone = route53.HostedZone.fromLookup(this, 'HostedZone', {
+      domainName: DOMAIN_NAME,
     });
 
     // CloudFront requires its certificate in us-east-1 — this stack already
