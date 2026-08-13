@@ -1,5 +1,4 @@
-# Deployed Lambda package deps only — no uvicorn/websockets (Mangum handles
-# ASGI directly; the native WebSocket route is local-dev only). See deploy.sh.
+# Deployed Lambda package deps. See deploy.sh.
 fastapi>=0.115.0
 pydantic>=2.0.0
 boto3>=1.34.0
