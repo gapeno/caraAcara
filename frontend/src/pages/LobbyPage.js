@@ -33,7 +33,7 @@ export default function LobbyPage({ currentUser }) {
 
   return (
     <div className="lobby-page">
-      <button className="btn-back" onClick={() => navigate('/')}>← Back</button>
+      <button className="btn-back" onClick={() => navigate('/')}>← back</button>
 
       <div className="lobby-card">
         <h2 className="lobby-title">{gameType}</h2>

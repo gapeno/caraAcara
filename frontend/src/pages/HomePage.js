@@ -48,7 +48,7 @@ export default function HomePage({ onLogin, currentUser }) {
             <input
               type="text"
               className="login-input"
-              placeholder="Your username"
+              placeholder="..."
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               maxLength={20}

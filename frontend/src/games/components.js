@@ -7,11 +7,13 @@
 import TicTacToe from './tictactoe/TicTacToe';
 import Minesweeper from './minesweeper/Minesweeper';
 import DotsAndBoxes from './dotsandboxes/DotsAndBoxes';
+import ConnectFour from './connectfour/ConnectFour';
 
 const COMPONENTS = {
   tictactoe: TicTacToe,
   minesweeper: Minesweeper,
   dotsandboxes: DotsAndBoxes,
+  connectfour: ConnectFour,
   // guess_who: GuessWho,
 };
 
