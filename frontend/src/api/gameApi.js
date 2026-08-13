@@ -10,13 +10,18 @@
  *   POST /games/:id/reset      → resetGame
  */
 
+import { getConfig } from '../config';
+
 export function getGameWsUrl(gameId) {
+  const { wsBase } = getConfig();
+  if (wsBase) return `${wsBase}?game_id=${gameId}`;
+
   const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
   return `${proto}://${window.location.host}/games/${gameId}/ws`;
 }
 
 async function request(method, path, body) {
-  const res = await fetch(path, {
+  const res = await fetch(`${getConfig().apiBase}${path}`, {
     method,
     headers: { 'Content-Type': 'application/json' },
     body: body ? JSON.stringify(body) : undefined,

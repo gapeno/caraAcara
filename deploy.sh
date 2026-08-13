@@ -17,10 +17,11 @@ need() { command -v "$1" &>/dev/null || die "'$1' not found — please install i
 need aws
 need node
 need npm
-need docker
+need python3
 need jq
 
-docker info &>/dev/null 2>&1 || die "Docker is not running — CDK needs it for Lambda bundling"
+python3 -m pip --version &>/dev/null 2>&1 \
+  || die "pip not found for python3 — needed to bundle the backend Lambda package"
 
 aws sts get-caller-identity &>/dev/null 2>&1 \
   || die "AWS credentials not configured — run 'aws configure' or set AWS_PROFILE"
@@ -28,12 +29,33 @@ aws sts get-caller-identity &>/dev/null 2>&1 \
 success "All prerequisites met"
 
 # ── Frontend build ────────────────────────────────────────────────────────────
-# The frontend uses relative API paths (/games/…) so no URL is needed at build time.
+# The frontend reads API URLs from /config.json at runtime (written by CDK
+# below, after the API Gateway resources exist), so no URL is needed at build time.
 info "Building frontend..."
 cd "$ROOT/frontend"
 npm install --silent
 npm run build
 success "Frontend built"
+
+# ── Backend Lambda package ────────────────────────────────────────────────────
+# Installs Lambda deps as manylinux wheels (targeting the Lambda runtime's
+# platform directly, no Docker needed) and bundles the app source alongside
+# them; CDK zips backend/build as-is for all four backend Lambdas.
+info "Building backend Lambda package..."
+cd "$ROOT/backend"
+rm -rf build
+mkdir -p build
+python3 -m pip install --quiet \
+  --platform manylinux2014_x86_64 \
+  --python-version 3.12 \
+  --implementation cp \
+  --only-binary=:all: \
+  --target build \
+  -r requirements-lambda.txt
+cp ./*.py build/
+cp -r routes games build/
+find build -name '__pycache__' -type d -exec rm -rf {} +
+success "Backend Lambda package ready"
 
 # ── CDK install ───────────────────────────────────────────────────────────────
 info "Installing CDK dependencies..."
@@ -55,7 +77,11 @@ npx cdk deploy \
   --require-approval never
 
 APP_URL=$(jq -r '.CaraAcaraStack.AppUrl' "$OUTPUTS_FILE")
+HTTP_API_URL=$(jq -r '.CaraAcaraStack.HttpApiUrl' "$OUTPUTS_FILE")
+WS_URL=$(jq -r '.CaraAcaraStack.WebSocketUrl' "$OUTPUTS_FILE")
 
 success "Deployment complete"
 echo ""
-echo -e "  App → ${GREEN}$APP_URL${NC}"
+echo -e "  App        → ${GREEN}$APP_URL${NC}"
+echo -e "  REST API   → ${GREEN}$HTTP_API_URL${NC}"
+echo -e "  WebSocket  → ${GREEN}$WS_URL${NC}"
