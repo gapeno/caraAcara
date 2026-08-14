@@ -44,7 +44,10 @@ export default function GamePage({ currentUser }) {
   const opponentJoined = opponentPlayer && opponentPlayer.name !== 'Player 2';
 
   function handleMove(move) {
-    if (!isMyTurn) return;
+    // current_player is null during simultaneous phases (e.g. guess_who's
+    // "choosing" step, where both players act independently) — only gate
+    // on isMyTurn once the game is actually turn-based.
+    if (state?.current_player !== null && !isMyTurn) return;
     submitMove(myRole, move);
   }
 
@@ -71,7 +74,7 @@ export default function GamePage({ currentUser }) {
         )}
       </header>
 
-      {myRole === 'p1' && state?.status === 'in_progress' && !opponentJoined && (
+      {myRole === 'p1' && state && !opponentJoined && (
         <div className="share-banner">
           <span className="share-label">share with {opponentPlayer?.name ?? 'friend'}</span>
           <code className="share-url">{shareUrl}</code>
