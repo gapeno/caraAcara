@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from games.registry import get_game_logic, get_game_meta, list_games
 from storage import store
 from broadcast import broadcaster
+from leaderboard import leaderboard_store
 
 router = APIRouter(prefix="/games", tags=["games"])
 
@@ -34,6 +35,21 @@ def _game_or_404(game_id: str) -> dict:
     if not game:
         raise HTTPException(status_code=404, detail=f"Game {game_id!r} not found")
     return game
+
+
+def _record_leaderboard_result(game: dict) -> None:
+    """Award leaderboard points once a game reaches a terminal state.
+    Works across all game types: a "draw" status is a tie for everyone,
+    otherwise "winner" (set for both "win" and minesweeper's "loss" status)
+    decides who won and who lost."""
+    state = game["state"]
+    winner = state.get("winner")
+    for p in game["players"]:
+        if state["status"] == "draw":
+            outcome = "tie"
+        else:
+            outcome = "win" if p["id"] == winner else "loss"
+        leaderboard_store.record(p["name"], outcome)
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────
@@ -98,8 +114,13 @@ async def make_move(game_id: str, body: MakeMoveRequest):
     if not logic.is_valid_move(game["state"], body.move, body.player_id):
         raise HTTPException(status_code=400, detail="Invalid move")
 
+    was_in_progress = game["state"]["status"] == "in_progress"
     game["state"] = logic.apply_move(game["state"], body.move, body.player_id)
     store.save(game)
+
+    if was_in_progress and game["state"]["status"] != "in_progress":
+        _record_leaderboard_result(game)
+
     await broadcaster.broadcast(game_id, game)
     return game
 

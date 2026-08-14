@@ -11,6 +11,28 @@
   margin-bottom: 3rem;
 }
 
+.trophy-button {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.trophy-button:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
 .logo {
   font-size: 3rem;
   font-weight: 900;
