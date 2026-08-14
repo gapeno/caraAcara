@@ -9,6 +9,7 @@ import Minesweeper from './minesweeper/Minesweeper';
 import DotsAndBoxes from './dotsandboxes/DotsAndBoxes';
 import ConnectFour from './connectfour/ConnectFour';
 import Battleship from './battleship/Battleship';
+import GuessWho from './guesswho/GuessWho';
 
 const COMPONENTS = {
   tictactoe: TicTacToe,
@@ -16,7 +17,7 @@ const COMPONENTS = {
   dotsandboxes: DotsAndBoxes,
   connectfour: ConnectFour,
   battleship: Battleship,
-  // guess_who: GuessWho,
+  guess_who: GuessWho,
 };
 
 export function getGameComponent(gameType) {

@@ -1,0 +1,155 @@
+.gw-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 560px;
+}
+
+/* Status */
+.gw-status {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  min-height: 1.6rem;
+  text-align: center;
+}
+
+.gw-status.game-over {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.gw-last-guess {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.gw-last-guess.correct {
+  color: #4caf50;
+  border-color: #4caf50;
+}
+
+.gw-last-guess.wrong {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.gw-my-secret {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.gw-my-secret strong {
+  color: var(--text);
+}
+
+/* Roster grid */
+.gw-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.gw-card {
+  position: relative;
+}
+
+.gw-card-main {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.75rem 0.4rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s, opacity 0.2s;
+}
+
+.gw-card-main:hover:not(:disabled) {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.gw-card-main:disabled {
+  cursor: default;
+}
+
+.gw-card.eliminated .gw-card-main {
+  opacity: 0.3;
+}
+
+.gw-card.solved .gw-card-main {
+  border-color: #4caf50;
+  background: rgba(76, 175, 80, 0.12);
+}
+
+.gw-emoji {
+  font-size: 1.6rem;
+}
+
+.gw-name {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.gw-eliminate-toggle {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gw-eliminate-toggle:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.gw-container .spinner {
+  width: 28px;
+  height: 28px;
+  margin: 0.5rem auto;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Restart */
+.gw-restart {
+  margin-top: 0.5rem;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .gw-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
