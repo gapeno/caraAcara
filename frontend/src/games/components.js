@@ -8,12 +8,14 @@ import TicTacToe from './tictactoe/TicTacToe';
 import Minesweeper from './minesweeper/Minesweeper';
 import DotsAndBoxes from './dotsandboxes/DotsAndBoxes';
 import ConnectFour from './connectfour/ConnectFour';
+import Battleship from './battleship/Battleship';
 
 const COMPONENTS = {
   tictactoe: TicTacToe,
   minesweeper: Minesweeper,
   dotsandboxes: DotsAndBoxes,
   connectfour: ConnectFour,
+  battleship: Battleship,
   // guess_who: GuessWho,
 };
 
