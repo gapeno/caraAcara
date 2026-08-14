@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { listGames } from '../api/gameApi';
+import LeaderboardModal from '../components/LeaderboardModal';
 import './HomePage.css';
 
 export default function HomePage({ onLogin, currentUser }) {
@@ -8,6 +9,7 @@ export default function HomePage({ onLogin, currentUser }) {
   const [games, setGames] = useState([]);
   const [gamesLoading, setGamesLoading] = useState(true);
   const [gamesError, setGamesError] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -36,10 +38,21 @@ export default function HomePage({ onLogin, currentUser }) {
 
   return (
     <div className="home-page">
+      <button
+        className="trophy-button"
+        onClick={() => setShowLeaderboard(true)}
+        aria-label="show leaderboard"
+        title="leaderboard"
+      >
+        🏆
+      </button>
+
       <header className="home-header">
         <h1 className="logo">cara<span>A</span>cara</h1>
         <p className="tagline">face to face multiplayer games over the cloud</p>
       </header>
+
+      {showLeaderboard && <LeaderboardModal onClose={() => setShowLeaderboard(false)} />}
 
       {!currentUser ? (
         <section className="login-section">

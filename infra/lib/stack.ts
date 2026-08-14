@@ -36,6 +36,12 @@ export class CaraAcaraStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
+    const leaderboardTable = new dynamodb.Table(this, 'LeaderboardTable', {
+      partitionKey: { name: 'name', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
     const connectionsTable = new dynamodb.Table(this, 'ConnectionsTable', {
       partitionKey: { name: 'connectionId', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -67,6 +73,7 @@ export class CaraAcaraStack extends cdk.Stack {
       environment: {
         GAMES_TABLE: gamesTable.tableName,
         CONNECTIONS_TABLE: connectionsTable.tableName,
+        LEADERBOARD_TABLE: leaderboardTable.tableName,
       },
     });
 
@@ -110,6 +117,7 @@ export class CaraAcaraStack extends cdk.Stack {
     });
 
     gamesTable.grantReadWriteData(restFn);
+    leaderboardTable.grantReadWriteData(restFn);
     connectionsTable.grantReadData(restFn); // GSI query in broadcast.py's DynamoBroadcaster
     gamesTable.grantReadData(connectFn);
     connectionsTable.grantWriteData(connectFn);

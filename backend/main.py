@@ -2,6 +2,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.games import router as games_router
+from routes.leaderboard import router as leaderboard_router
 
 app = FastAPI(title="CaraAcara API", version="0.1.0")
 
@@ -14,6 +15,7 @@ app.add_middleware(
 )
 
 app.include_router(games_router)
+app.include_router(leaderboard_router)
 
 
 @app.get("/health")

@@ -9,6 +9,7 @@
  *   POST /games/:id/join       → joinGame
  *   POST /games/:id/moves      → makeMove
  *   POST /games/:id/reset      → resetGame
+ *   GET  /leaderboard          → getLeaderboard
  */
 
 import { getConfig } from '../config';
@@ -75,4 +76,9 @@ export async function makeMove(gameId, playerId, move) {
 export async function resetGame(gameId) {
   const data = await request('POST', `/games/${gameId}/reset`);
   return { gameId: data.id, gameType: data.game_type, players: data.players, state: data.state };
+}
+
+/** GET /leaderboard — top players by score (win +10, tie +5, loss +1). */
+export async function getLeaderboard(limit = 5) {
+  return request('GET', `/leaderboard?limit=${limit}`);
 }
