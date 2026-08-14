@@ -14,6 +14,7 @@ Each entry:
 from games.tictactoe import logic as tictactoe_logic
 from games.minesweeper import logic as minesweeper_logic
 from games.dotsandboxes import logic as dotsandboxes_logic
+from games.battleship import logic as battleship_logic
 from games.connectfour import logic as connectfour_logic
 
 REGISTRY: dict = {
@@ -52,6 +53,15 @@ REGISTRY: dict = {
         "min_players": 2,
         "max_players": 2,
         "logic": connectfour_logic,
+    },
+    "battleship": {
+        "id": "battleship",
+        "label": "Battleship",
+        "description": "sink your opponent's fleet",
+        "icon": "🚢",
+        "min_players": 2,
+        "max_players": 2,
+        "logic": battleship_logic,
     },
     # Phase 2 — add more games here:
     # "guess_who": { ... },
